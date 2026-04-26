@@ -23,5 +23,5 @@ export function averageOfN(times: TimeRecord[], n: number): number | null {
 
 export function formatSeconds(value: number | null): string {
   if (value === null || Number.isNaN(value)) return '—';
-  return value.toFixed(2);
+  return value.toFixed(3);
 }

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { AlgorithmForm } from './AlgorithmForm';
 import { TimeHistoryPanel } from './TimeHistoryPanel';
-import { averageSeconds, bestSeconds, formatSeconds } from '@/lib/stats';
+import { averageOfN, bestSeconds, formatSeconds } from '@/lib/stats';
 import type { AlgorithmRecord, Auf } from '@/types/pll';
 
 interface AlgorithmRowProps {
@@ -27,7 +27,7 @@ export function AlgorithmRow({
   const [expanded, setExpanded] = useState(false);
 
   const best = bestSeconds(record.times);
-  const avg = averageSeconds(record.times);
+  const ao5 = averageOfN(record.times, 5);
 
   return (
     <li
@@ -85,9 +85,9 @@ export function AlgorithmRow({
               </span>
             </span>
             <span>
-              Avg:{' '}
+              ao5:{' '}
               <span className="font-mono font-semibold">
-                {formatSeconds(avg)}
+                {formatSeconds(ao5)}
               </span>
             </span>
             <span className="text-zinc-500">
