@@ -37,67 +37,74 @@ export function AlgorithmRow({
           : 'border-zinc-200 dark:border-zinc-800'
       } bg-white dark:bg-zinc-900`}
     >
-      <div className="p-3 flex items-start gap-3">
-        <button
-          type="button"
-          onClick={() => {
-            if (!record.isStarred) onSetStar(record.id);
-          }}
-          disabled={record.isStarred}
-          className={`mt-1 text-lg leading-none ${
-            record.isStarred
-              ? 'text-amber-500 cursor-default'
-              : 'text-zinc-300 hover:text-amber-400 dark:text-zinc-700'
-          }`}
-          aria-label={record.isStarred ? 'Starred (only one per PLL)' : 'Set as starred'}
-          title={record.isStarred ? 'Starred — shown on the PLL grid' : 'Set as starred'}
-        >
-          ★
-        </button>
+      <div className="p-3">
+        {/* Star + algorithm/form take the full row width so the move
+            sequence has room to breathe before wrapping. */}
+        <div className="flex items-start gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              if (!record.isStarred) onSetStar(record.id);
+            }}
+            disabled={record.isStarred}
+            className={`mt-1 text-lg leading-none ${
+              record.isStarred
+                ? 'text-amber-500 cursor-default'
+                : 'text-zinc-300 hover:text-amber-400 dark:text-zinc-700'
+            }`}
+            aria-label={record.isStarred ? 'Starred (only one per PLL)' : 'Set as starred'}
+            title={record.isStarred ? 'Starred — shown on the PLL grid' : 'Set as starred'}
+          >
+            ★
+          </button>
 
-        <div className="flex-1 min-w-0">
-          {editing ? (
-            <AlgorithmForm
-              pllId={record.pllId}
-              initialValue={record.algorithm}
-              initialAuf={record.auf}
-              submitLabel="Update"
-              onSubmit={(algorithm, auf) => {
-                onUpdate(record.id, { algorithm, auf });
-                setEditing(false);
-              }}
-              onCancel={() => setEditing(false)}
-            />
-          ) : (
-            <p className="font-mono text-sm break-words">
-              <span className="inline-block min-w-[2.5em] mr-2 px-1.5 py-0.5 text-[10px] rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 align-middle">
-                {record.auf}
-              </span>
-              {record.algorithm}
-            </p>
-          )}
+          <div className="flex-1 min-w-0">
+            {editing ? (
+              <AlgorithmForm
+                pllId={record.pllId}
+                initialValue={record.algorithm}
+                initialAuf={record.auf}
+                submitLabel="Update"
+                onSubmit={(algorithm, auf) => {
+                  onUpdate(record.id, { algorithm, auf });
+                  setEditing(false);
+                }}
+                onCancel={() => setEditing(false)}
+              />
+            ) : (
+              <p className="font-mono text-sm break-words">
+                <span className="inline-block min-w-[2.5em] mr-2 px-1.5 py-0.5 text-[10px] rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 align-middle">
+                  {record.auf}
+                </span>
+                {record.algorithm}
+              </p>
+            )}
 
-          <div className="mt-2 flex items-center gap-4 text-xs">
-            <span>
-              Best:{' '}
-              <span className="font-mono font-semibold text-emerald-600 dark:text-emerald-400">
-                {formatSeconds(best)}
+            <div className="mt-2 flex items-center gap-4 text-xs">
+              <span>
+                Best:{' '}
+                <span className="font-mono font-semibold text-emerald-600 dark:text-emerald-400">
+                  {formatSeconds(best)}
+                </span>
               </span>
-            </span>
-            <span>
-              ao5:{' '}
-              <span className="font-mono font-semibold">
-                {formatSeconds(ao5)}
+              <span>
+                ao5:{' '}
+                <span className="font-mono font-semibold">
+                  {formatSeconds(ao5)}
+                </span>
               </span>
-            </span>
-            <span className="text-zinc-500">
-              {record.times.length} solve{record.times.length === 1 ? '' : 's'}
-            </span>
+              <span className="text-zinc-500">
+                {record.times.length} solve{record.times.length === 1 ? '' : 's'}
+              </span>
+            </div>
           </div>
         </div>
 
+        {/* Action row sits below so the algorithm above isn't squeezed
+            into a narrow column. Hidden while editing — the form has
+            its own Update / Cancel. */}
         {!editing && (
-          <div className="flex items-center gap-1 shrink-0">
+          <div className="mt-3 flex items-center justify-end gap-1">
             <button
               type="button"
               onClick={() => setExpanded((v) => !v)}
