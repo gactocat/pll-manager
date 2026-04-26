@@ -22,27 +22,14 @@ export type PllId =
   | 'Gd';
 
 export const PLL_IDS: PllId[] = [
-  'Aa',
-  'Ab',
-  'E',
-  'Ua',
-  'Ub',
-  'H',
-  'Z',
-  'Ja',
-  'Jb',
-  'T',
-  'F',
-  'Ra',
-  'Rb',
-  'V',
-  'Y',
-  'Na',
-  'Nb',
-  'Ga',
-  'Gb',
-  'Gc',
-  'Gd',
+  // Permutations of Edges Only
+  'H', 'Ua', 'Ub', 'Z',
+  // Permutations of Corners Only
+  'Aa', 'Ab', 'E',
+  // Permutations of Edges and Corners (alphabetical per wiki)
+  'F', 'Ga', 'Gb', 'Gc', 'Gd',
+  'Ja', 'Jb', 'Na', 'Nb',
+  'Ra', 'Rb', 'T', 'V', 'Y',
 ];
 
 export type Auf = 'U0' | 'U' | 'U2' | "U'";
@@ -51,7 +38,7 @@ export const AUFS: Auf[] = ['U0', 'U', 'U2', "U'"];
 
 export type StickerColor = 'R' | 'O' | 'G' | 'B';
 
-export type PllCategory = 'corner' | 'edge' | 'adjacent' | 'diagonal' | 'g';
+export type PllCategory = 'epll' | 'cpll' | 'ec-pll';
 
 // Side stickers around the U layer (12 in total).
 // Order: clockwise starting from Back-left.

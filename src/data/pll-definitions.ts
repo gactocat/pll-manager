@@ -72,33 +72,37 @@ interface PllCycles {
   edges: number[][];
 }
 
+// Cycles below are derived from speedsolving.com PLL diagrams (the wiki PDF).
+// Indexing: corners 0=UBL, 1=UBR, 2=UFR, 3=UFL; edges 0=UB, 1=UR, 2=UF, 3=UL.
+// Cycle [a,b,c] = piece at a moves to b after the algorithm
+// (so in the scrambled state shown, position a holds the b-piece).
 const PLL_CYCLES: Record<PllId, PllCycles> = {
-  // Corner 3-cycle PLLs (no edge swap)
-  Aa: { corners: [[1, 2, 3]], edges: [] },
-  Ab: { corners: [[3, 2, 1]], edges: [] },
-  E:  { corners: [[0, 2], [1, 3]], edges: [] },
-  // Edge-only PLLs
-  Ua: { corners: [], edges: [[1, 3, 2]] },
-  Ub: { corners: [], edges: [[2, 3, 1]] },
-  H:  { corners: [], edges: [[0, 2], [1, 3]] },
-  Z:  { corners: [], edges: [[0, 1], [2, 3]] },
-  // Adjacent corner swap + edge swap
-  Ja: { corners: [[0, 1]], edges: [[0, 3]] },
-  Jb: { corners: [[1, 2]], edges: [[1, 2]] },
-  T:  { corners: [[1, 2]], edges: [[1, 3]] },
-  F:  { corners: [[2, 3]], edges: [[0, 2]] },
-  Ra: { corners: [[1, 2, 3]], edges: [[0, 1, 3]] },
-  Rb: { corners: [[1, 3, 2]], edges: [[0, 3, 1]] },
-  // Diagonal corner swap PLLs
-  V:  { corners: [[1, 3]], edges: [[1, 2]] },
-  Y:  { corners: [[0, 2]], edges: [[2, 3]] },
-  Na: { corners: [[1, 3]], edges: [[0, 2]] },
-  Nb: { corners: [[0, 2]], edges: [[1, 3]] },
-  // G perms (corner 3-cycle + edge 3-cycle)
-  Ga: { corners: [[1, 2, 3]], edges: [[1, 3, 2]] },
-  Gb: { corners: [[1, 3, 2]], edges: [[1, 2, 3]] },
-  Gc: { corners: [[3, 2, 1]], edges: [[3, 1, 2]] },
-  Gd: { corners: [[2, 1, 3]], edges: [[3, 2, 1]] },
+  // Permutations of Edges Only (EPLL)
+  H:  { corners: [], edges: [[0, 2], [1, 3]] },                  // (UB UF)(UR UL)
+  Ua: { corners: [], edges: [[0, 3, 1]] },                       // (UB UL UR), leaves UF
+  Ub: { corners: [], edges: [[0, 1, 3]] },                       // (UB UR UL), leaves UF
+  Z:  { corners: [], edges: [[0, 3], [1, 2]] },                  // (UB UL)(UR UF)
+
+  // Permutations of Corners Only (CPLL)
+  Aa: { corners: [[1, 2, 3]], edges: [] },                       // (UBR UFR UFL), leaves UBL
+  Ab: { corners: [[1, 3, 2]], edges: [] },                       // (UBR UFL UFR), leaves UBL
+  E:  { corners: [[0, 1], [2, 3]], edges: [] },                  // (UBL UBR)(UFR UFL) — adjacent pairs per wiki diagram
+
+  // Permutations of Edges and Corners
+  F:  { corners: [[0, 1]],         edges: [[1, 3]] },            // (UBL UBR) + (UR UL)
+  Ga: { corners: [[0, 2, 3]],      edges: [[0, 3, 2]] },         // (UBL UFR UFL) + (UB UL UF)
+  Gb: { corners: [[0, 3, 2]],      edges: [[0, 2, 3]] },         // (UBL UFL UFR) + (UB UF UL)
+  Gc: { corners: [[1, 3, 2]],      edges: [[0, 1, 2]] },         // (UBR UFL UFR) + (UB UR UF)
+  Gd: { corners: [[1, 2, 3]],      edges: [[0, 2, 1]] },         // (UBR UFR UFL) + (UB UF UR)
+  Ja: { corners: [[0, 3]],         edges: [[2, 3]] },            // (UBL UFL) + (UF UL)
+  Jb: { corners: [[1, 2]],         edges: [[1, 2]] },            // (UBR UFR) + (UR UF)
+  Na: { corners: [[1, 3]],         edges: [[1, 3]] },            // (UBR UFL) + (UR UL)
+  Nb: { corners: [[0, 2]],         edges: [[1, 3]] },            // (UBL UFR) + (UR UL)
+  Ra: { corners: [[2, 3]],         edges: [[0, 1]] },            // (UFR UFL) + (UB UR)
+  Rb: { corners: [[0, 1]],         edges: [[1, 2]] },            // (UBL UBR) + (UR UF)
+  T:  { corners: [[1, 2]],         edges: [[1, 3]] },            // (UBR UFR) + (UR UL)
+  V:  { corners: [[0, 2]],         edges: [[0, 1]] },            // (UBL UFR) + (UB UR)
+  Y:  { corners: [[0, 2]],         edges: [[0, 3]] },            // (UBL UFR) + (UB UL)
 };
 
 const NAMES: Record<PllId, string> = {
@@ -126,12 +130,11 @@ const NAMES: Record<PllId, string> = {
 };
 
 const CATEGORIES: Record<PllId, PllCategory> = {
-  Aa: 'corner', Ab: 'corner', E: 'corner',
-  Ua: 'edge', Ub: 'edge', H: 'edge', Z: 'edge',
-  Ja: 'adjacent', Jb: 'adjacent', T: 'adjacent', F: 'adjacent',
-  Ra: 'adjacent', Rb: 'adjacent', V: 'adjacent', Y: 'adjacent',
-  Na: 'diagonal', Nb: 'diagonal',
-  Ga: 'g', Gb: 'g', Gc: 'g', Gd: 'g',
+  H: 'epll', Ua: 'epll', Ub: 'epll', Z: 'epll',
+  Aa: 'cpll', Ab: 'cpll', E: 'cpll',
+  F: 'ec-pll', Ga: 'ec-pll', Gb: 'ec-pll', Gc: 'ec-pll', Gd: 'ec-pll',
+  Ja: 'ec-pll', Jb: 'ec-pll', Na: 'ec-pll', Nb: 'ec-pll',
+  Ra: 'ec-pll', Rb: 'ec-pll', T: 'ec-pll', V: 'ec-pll', Y: 'ec-pll',
 };
 
 // Apply a list of disjoint cycles to an identity permutation [0,1,...,n-1].

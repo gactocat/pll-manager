@@ -9,20 +9,12 @@ import { PllImage } from './PllImage';
 import { AUFS, type Auf, type PllCategory, type PllId } from '@/types/pll';
 
 const CATEGORY_LABELS: Record<PllCategory, string> = {
-  corner: 'Corner cycles',
-  edge: 'Edge cycles',
-  adjacent: 'Adjacent corner + edge swap',
-  diagonal: 'Diagonal corner + edge swap',
-  g: 'G perms (3-cycle × 3-cycle)',
+  epll: 'Permutations of Edges Only',
+  cpll: 'Permutations of Corners Only',
+  'ec-pll': 'Permutations of Edges and Corners',
 };
 
-const CATEGORY_ORDER: PllCategory[] = [
-  'corner',
-  'edge',
-  'adjacent',
-  'diagonal',
-  'g',
-];
+const CATEGORY_ORDER: PllCategory[] = ['epll', 'cpll', 'ec-pll'];
 
 const AUF_LABEL: Record<Auf, string> = {
   U0: 'U0',
