@@ -7,7 +7,6 @@ import {
   mutate,
   subscribe,
 } from '@/lib/storage';
-import { bestSeconds } from '@/lib/stats';
 import type {
   AlgorithmRecord,
   Auf,
@@ -31,7 +30,6 @@ export interface UseAlgorithmsResult {
   all: AlgorithmRecord[];
   forPll: (pllId: PllId, auf?: Auf) => AlgorithmRecord[];
   starredFor: (pllId: PllId) => AlgorithmRecord | null;
-  bestTimeFor: (pllId: PllId) => number | null;
   add: (input: { pllId: PllId; auf: Auf; algorithm: string }) => AlgorithmRecord;
   update: (
     id: string,
@@ -58,16 +56,6 @@ export function useAlgorithms(): UseAlgorithmsResult {
   const starredFor = useCallback(
     (pllId: PllId): AlgorithmRecord | null =>
       records.find((r) => r.pllId === pllId && r.isStarred) ?? null,
-    [records],
-  );
-
-  const bestTimeFor = useCallback(
-    (pllId: PllId) => {
-      const all = records
-        .filter((r) => r.pllId === pllId)
-        .flatMap((r) => r.times);
-      return bestSeconds(all);
-    },
     [records],
   );
 
@@ -158,7 +146,6 @@ export function useAlgorithms(): UseAlgorithmsResult {
       all: records,
       forPll,
       starredFor,
-      bestTimeFor,
       add,
       update,
       setStar,
@@ -171,7 +158,6 @@ export function useAlgorithms(): UseAlgorithmsResult {
       records,
       forPll,
       starredFor,
-      bestTimeFor,
       add,
       update,
       setStar,

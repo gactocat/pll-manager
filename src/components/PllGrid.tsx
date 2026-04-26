@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { ALL_PLLS } from '@/data/pll-definitions';
 import { useAlgorithms } from '@/hooks/useAlgorithms';
-import { formatSeconds } from '@/lib/stats';
+import { averageOfN, bestSeconds, formatSeconds } from '@/lib/stats';
 import { PllImage } from './PllImage';
 import type { PllCategory } from '@/types/pll';
 
@@ -23,8 +23,20 @@ function timeBadgeClasses(seconds: number | null): string {
   return 'bg-rose-400 text-rose-950';
 }
 
+function formatLastDate(iso: string | undefined): string {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+    });
+  } catch {
+    return '—';
+  }
+}
+
 export function PllGrid() {
-  const { ready, bestTimeFor, starredFor, all } = useAlgorithms();
+  const { ready, starredFor, all } = useAlgorithms();
 
   const grouped = CATEGORY_ORDER.map((cat) => ({
     category: cat,
@@ -52,8 +64,11 @@ export function PllGrid() {
           </h2>
           <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {items.map((pll) => {
-              const best = ready ? bestTimeFor(pll.id) : null;
               const star = ready ? starredFor(pll.id) : null;
+              const starTimes = star?.times ?? [];
+              const best = bestSeconds(starTimes);
+              const ao5 = averageOfN(starTimes, 5);
+              const lastDate = formatLastDate(starTimes[0]?.recordedAt);
               const displayAuf = star?.auf ?? 'U0';
               return (
                 <li key={pll.id}>
@@ -90,6 +105,18 @@ export function PllGrid() {
                         </span>
                       )}
                     </div>
+                    {star && (
+                      <div className="mt-2 flex items-center justify-center gap-2 text-[10px] text-zinc-500 font-mono">
+                        <span>
+                          ao5{' '}
+                          <span className="text-zinc-700 dark:text-zinc-300">
+                            {formatSeconds(ao5)}
+                          </span>
+                        </span>
+                        <span aria-hidden>·</span>
+                        <span title="Last recorded date">{lastDate}</span>
+                      </div>
+                    )}
                   </Link>
                 </li>
               );
