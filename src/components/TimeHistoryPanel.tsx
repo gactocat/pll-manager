@@ -99,8 +99,8 @@ function Stopwatch({ onRecord }: { onRecord: (seconds: number) => void }) {
   return (
     <button
       type="button"
-      onClick={state === 'idle' ? start : stop}
-      className={`w-full min-h-[220px] rounded-md flex flex-col items-center justify-center gap-3 transition-colors select-none touch-manipulation ${surfaceClasses}`}
+      onPointerDown={state === 'idle' ? start : stop}
+      className={`w-full min-h-[220px] rounded-md flex flex-col items-center justify-center gap-3 transition-colors select-none touch-none ${surfaceClasses}`}
       aria-label={state === 'idle' ? 'Tap to start the stopwatch' : 'Tap to stop the stopwatch'}
     >
       <div
