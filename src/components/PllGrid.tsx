@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { ALL_PLLS } from '@/data/pll-definitions';
 import { useAlgorithms } from '@/hooks/useAlgorithms';
-import { aufFromAlgorithm } from '@/lib/auf-from-algorithm';
 import { formatSeconds } from '@/lib/stats';
 import { PllImage } from './PllImage';
 import type { PllCategory } from '@/types/pll';
@@ -55,7 +54,7 @@ export function PllGrid() {
             {items.map((pll) => {
               const best = ready ? bestTimeFor(pll.id) : null;
               const star = ready ? starredFor(pll.id) : null;
-              const displayAuf = star ? aufFromAlgorithm(star.algorithm) : 'U0';
+              const displayAuf = star?.auf ?? 'U0';
               return (
                 <li key={pll.id}>
                   <Link

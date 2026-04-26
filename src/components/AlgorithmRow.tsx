@@ -4,11 +4,11 @@ import { useState } from 'react';
 import { AlgorithmForm } from './AlgorithmForm';
 import { TimeHistoryPanel } from './TimeHistoryPanel';
 import { averageSeconds, bestSeconds, formatSeconds } from '@/lib/stats';
-import type { AlgorithmRecord } from '@/types/pll';
+import type { AlgorithmRecord, Auf } from '@/types/pll';
 
 interface AlgorithmRowProps {
   record: AlgorithmRecord;
-  onUpdate: (id: string, patch: { algorithm?: string }) => void;
+  onUpdate: (id: string, patch: { algorithm?: string; auf?: Auf }) => void;
   onSetStar: (id: string) => void;
   onRemove: (id: string) => void;
   onAddTime: (id: string, seconds: number) => void;
@@ -41,8 +41,6 @@ export function AlgorithmRow({
         <button
           type="button"
           onClick={() => {
-            // Star is single-select per PLL; we only let users PROMOTE one.
-            // The store auto-promotes if the user removes the only algo's star.
             if (!record.isStarred) onSetStar(record.id);
           }}
           disabled={record.isStarred}
@@ -62,15 +60,21 @@ export function AlgorithmRow({
             <AlgorithmForm
               pllId={record.pllId}
               initialValue={record.algorithm}
+              initialAuf={record.auf}
               submitLabel="Update"
-              onSubmit={(v) => {
-                onUpdate(record.id, { algorithm: v });
+              onSubmit={(algorithm, auf) => {
+                onUpdate(record.id, { algorithm, auf });
                 setEditing(false);
               }}
               onCancel={() => setEditing(false)}
             />
           ) : (
-            <p className="font-mono text-sm break-words">{record.algorithm}</p>
+            <p className="font-mono text-sm break-words">
+              <span className="inline-block min-w-[2.5em] mr-2 px-1.5 py-0.5 text-[10px] rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 align-middle">
+                {record.auf}
+              </span>
+              {record.algorithm}
+            </p>
           )}
 
           <div className="mt-2 flex items-center gap-4 text-xs">
