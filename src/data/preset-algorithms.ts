@@ -3,12 +3,18 @@
 // Each list is the canonical algorithm collection from the wiki, in the order
 // the wiki presents them.
 //
-// Post-processing applied: a leading "(y)" / "(y2)" / "(y')" cube rotation
-// has been rewritten to "(U)" / "(U2)" / "(U')" so splitAuf can pick it up
-// as the AUF setting. From the U-face viewpoint these produce the same
-// visual rotation, so the recorded algorithm is functionally equivalent.
-// Combined prefixes like "(y x)" are intentionally NOT rewritten — the
-// non-y rotation must remain in the algorithm body.
+// Post-processing applied: a leading y-axis rotation in the opening
+// parenthesised group has been rewritten as a U-layer turn so splitAuf
+// can pick it up as the AUF setting. From the U-face viewpoint y and U
+// produce the same visual rotation, so the algorithm is functionally
+// equivalent for PLL purposes.
+//   "(y) [body]"   -> "(U) [body]"
+//   "(y2) [body]"  -> "(U2) [body]"
+//   "(y') [body]"  -> "(U') [body]"
+//   "(y x) [body]" -> "(U) x [body]"   // compound: extract y, leave the
+//   "(y2 z) [body]"-> "(U2) z [body]"  // sibling rotation in the body
+//   "(y' z) [body]"-> "(U') z [body]"  // (without its old parens)
+// Other rotations like "(x)" or "(z)" with no y are left intact.
 
 import type { PllId } from '@/types/pll';
 
@@ -69,7 +75,7 @@ export const PRESET_ALGORITHMS: Record<PllId, readonly string[]> = {
   F: [
     'y L R2 U R U R2 U\' R\' U\' R2 U\' R U2 L\' U R\'',
     '(U) R\' U\' F\' (R U R\' U\') R\' F R2 (U\' R\' U\') R U R\' U R',
-    '(y x) R\' B\' U\' l U R\' U\' R\' F R2 U\' R\' U\' R U R\' U R',
+    '(U) x R\' B\' U\' l U R\' U\' R\' F R2 U\' R\' U\' R U R\' U R',
     'y2 R\' U2 R\' d\' R\' F\' R2 U\' R\' U R\' F R U\' F',
     'M\' U2 L F\' R U2 r\' U r\' R2 U2 R2',
     '(R\' U R U\') R2 (F\' U\' F U) (R F R\' F\') R2 U\'',
@@ -84,7 +90,7 @@ export const PRESET_ALGORITHMS: Record<PllId, readonly string[]> = {
     '(U) R\' U\' F\' R U R\' U\' R\' F R2 U\' R\' U\' R U R\' U R',
     'L U\' L\' U L2 F U F\' U\' L\' F\' L F L2 U',
     '(U2) R U\' R\' U R2 (y) R U R\' U\' (x) U\' R\' U R U2 (x\')',
-    '(y\' z) R U R\' U\' R U2 (z\' y\') R U R\' U\' (y\' x\') R\' U\' R U R2 (x)',
+    '(U\') z R U R\' U\' R U2 (z\' y\') R U R\' U\' (y\' x\') R\' U\' R U R2 (x)',
     'L F R\' F\' L\' F\' D2 B\' L\' B D2 F\' R F2',
     'R\' U2 R U\' R\' f\' U\' R U2 R\' U\' R U\' R\' f U\' R',
   ],
@@ -96,7 +102,7 @@ export const PRESET_ALGORITHMS: Record<PllId, readonly string[]> = {
     'R L U2 R\' L\' (y\') R\' U L\' U2 R U\' L',
     'R U2\' R\' U\' F\' R U R2 U\' R\' F R U R2 U2\' R\'',
     '(R U R\' U\' R\') U F (R U R U\' R\') F\' U R\' U2 R',
-    '(y2 z) U R U\' R\' U\' R B U R U R\' U\' B\' R U\' R2 U (z\' y2\')',
+    '(U2) z U R U\' R\' U\' R B U R U R\' U\' B\' R U\' R2 U (z\' y2\')',
     '(U) L F2 R (F\' L\' F U) R\' U\' (F\' L F\' L\')',
     '(U) R2\' S2 U l2\' U\' l2\' u R2 U\' r2\' F2',
   ],
@@ -135,13 +141,13 @@ export const PRESET_ALGORITHMS: Record<PllId, readonly string[]> = {
     '(U2) R U R\' F2 D\' (L U\' L\' U L\') D F2',
     '(U2) L U2 L\' U F\' (L\' U\' L U L) F U (L\' U\' L\' U L)',
     'R U2\' R\' U B\' R\' U\' R U R B U R\' U\' R\' U R',
-    '(y2 z) U R2\' U\' R F\' U\' R\' U R U F R U\' R\' U\' R U (z\' y2\')',
+    '(U2) z U R2\' U\' R F\' U\' R\' U R U F R U\' R\' U\' R U (z\' y2\')',
     '(U2) l2 U\' L2 U\' F2 L\' U\' R U2 L\' U l (x\')',
     '(U) L U\' R U2 L\' U R\' (y) R\' L\' U2 R L',
     '(U) f R f\' R2 u\' R U\' R\' U R\' u R2',
     '(U\') R\' F\' R F\' U\' L\' U F R\' F\' L F2 R',
     '(U\') R2\' F\' (R U R U\') (R\' F\' R) (U2\' R\' U2\' R\') F2 R2',
-    '(y z) U2 B\' U R U R\' U\' B\' U R2\' U\' R2 U\' B2 U2\' (z\' y\')',
+    '(U) z U2 B\' U R U R\' U\' B\' U R2\' U\' R2 U\' B2 U2\' (z\' y\')',
     '(U2) (R U R\') F2 D\' L U\' L\' U L\' D F2 U2',
     '(U2) (F U\' R\' F) (R2 U\' R\' U\') (R U R\' F\') U2 (R U R\' F\') U\' F (U R U\' R\') F\'',
   ],
@@ -181,8 +187,8 @@ export const PRESET_ALGORITHMS: Record<PllId, readonly string[]> = {
     'B2 (L U L\') B2 (R D\' R D) R2',
     '(U2) F2 (R U R\') F2 (L D\' L D) L2',
     '(U2) F2 (R U R\') b2 (R U\' R U) l2\'',
-    '(y\' x\') L2 u L u\' L2 (x\' y) (L U\' L U) r2',
-    '(y2 x) U2 l U l\' U2 r (U\' L U) r2',
+    '(U\') x\' L2 u L u\' L2 (x\' y) (L U\' L U) r2',
+    '(U2) x U2 l U l\' U2 r (U\' L U) r2',
     'R U\' L U2 R\' U L\' U\' R U\' L U2 R\' U L\'',
     'B2 U D\' B2 U B2 U\' B2 D B2 U\' B2 U',
     '(U\') L2 (U D\') L2 U L2 U\' L2 D L2 U\' L2',
@@ -203,7 +209,7 @@ export const PRESET_ALGORITHMS: Record<PllId, readonly string[]> = {
     '(L U\' R U2 L\' U R\')2 U\'',
     '(z) (U R\' D R2 U\' R D\')2 (z\')',
     'L\' U L2 F2 U L\' F2 L U\' F2 L2 U\' L',
-    '(y z) R\' (U R\' D R2 U\' R D\')2 (z\')',
+    '(U) z R\' (U R\' D R2 U\' R D\')2 (z\')',
     '(R U\' L U2 R\' U L\')2',
     '(z) (D R\' U R2 D\' R U\')2 (z\')',
     '(z) U R\' D R2 U\' R U (z\') R\' U\' R (z) R2 U\' R (z\') R\'',
@@ -240,12 +246,12 @@ export const PRESET_ALGORITHMS: Record<PllId, readonly string[]> = {
     '(U\') R U R\' F\' R U2 R\' U2 R\' F R U R U2 R\' U\'',
     'R U2 R\' U2 R B\' R\' U\' R U R B R2 U',
     'R U2 R\' U2 R B\' R\' U\' R U l U R2 (x)',
-    '(y2 z) U R2 U\' R2 U F\' U\' R\' U R U F U2 (z\')',
+    '(U2) z U R2 U\' R2 U F\' U\' R\' U R U F U2 (z\')',
     '(U2) L U2 L\' U2 L F\' L\' U\' L U L F L2',
     '(U\') R2 B\' R\' U\' R\' U R B R\' U2 R U2 R\'',
     '(U) L2 F\' L\' U\' L\' U L F L\' U2 L U2 L\'',
     'F2 R\' F\' U\' F\' U F R F\' U2 F U2 F\'',
-    '(y\' x\') R2 U\' l\' U\' R\' U l U l\' U2 R U2 R\'',
+    '(U\') x\' R2 U\' l\' U\' R\' U l U l\' U2 R U2 R\'',
     '(U\') R l U\' l\' U\' R\' U l U l\' U2 R U2\' R\'',
     'F2 L2 U F U F\' U\' F\' U\' L2 F\' U F\' U\'',
     'R U\' R F2 U R U R U\' R\' U\' F2 R2 U',
@@ -261,7 +267,7 @@ export const PRESET_ALGORITHMS: Record<PllId, readonly string[]> = {
     'R\' U2 R\' D\' R U\' R\' D R U R U\' R\' U\' R',
     'y\' R U2 R\' U2 R\' F R2 U\' R\' U\' R U R\' F\' R U R\' U R U2 R\'',
     'y R2 F R U R U\' R\' F\' R U2 R\' U2 R',
-    '(y x) R2 U l U R U\' l\' U\' l U2 R\' U2 R',
+    '(U) x R2 U l U R U\' l\' U\' l U2 R\' U2 R',
     '(U\') r\' L\' U r U L U\' r\' U\' r U2 L\' U2 L',
     '(U2) L\' U2 L U L F L\' U2 L\' U2 L F\' L\' U L U\'',
   ],
@@ -280,8 +286,8 @@ export const PRESET_ALGORITHMS: Record<PllId, readonly string[]> = {
     'R\' U R\' U\' B\' R\' B2 U\' B\' U B\' R B R',
     'R\' U R\' d\' R\' F\' R2 U\' R\' U R\' F R F',
     'R\' U R\' U\' (y) R\' F\' R2 U\' R\' U R\' F R F',
-    '(y2 z) U\' R U\' R\' F\' U\' F2 l\' U\' l F\' U F U (z\' y2\')',
-    '(y2 x) R U R U\' B U\' B\' U2\' R\' U\' B\' R\' B R\' (x\' y2\')',
+    '(U2) z U\' R U\' R\' F\' U\' F2 l\' U\' l F\' U F U (z\' y2\')',
+    '(U2) x R U R U\' B U\' B\' U2\' R\' U\' B\' R\' B R\' (x\' y2\')',
     'R\' U R\' U\' B\' l\' (x2\' y\') U2 R\' U\' R (y) U\' R U R (x)',
     '(z) D\' R2 D R2 U R\' D\' R U\' R U R\' D R U\'',
     'R U2 R\' D R U\' R U\' R U R2 D R\' U\' R D2',
