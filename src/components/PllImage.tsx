@@ -10,12 +10,15 @@ interface PllImageProps {
   className?: string;
 }
 
+// Sticker colors sampled directly from the speedsolving.com wiki PLL diagrams
+// so the rendered cube reads the same way as the reference images. Red/orange
+// here are clearly distinct (orange is yellow-leaning, not just dark red).
 const STICKER_COLORS: Record<StickerColor | 'Y', string> = {
-  Y: '#facc15',
-  R: '#dc2626',
-  B: '#1d4ed8',
-  G: '#16a34a',
-  O: '#ea580c',
+  Y: '#f0f000',
+  R: '#e00000',
+  B: '#0000f0',
+  G: '#00d000',
+  O: '#f0a000',
 };
 
 const CELL_SIZE = 18;
