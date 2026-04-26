@@ -30,12 +30,14 @@ export interface UseAlgorithmsResult {
   ready: boolean;
   all: AlgorithmRecord[];
   forPll: (pllId: PllId, auf?: Auf) => AlgorithmRecord[];
+  starredFor: (pllId: PllId) => AlgorithmRecord | null;
   bestTimeFor: (pllId: PllId) => number | null;
   add: (input: { pllId: PllId; auf: Auf; algorithm: string }) => AlgorithmRecord;
   update: (
     id: string,
-    patch: Partial<Pick<AlgorithmRecord, 'algorithm' | 'auf' | 'isFavorite'>>,
+    patch: Partial<Pick<AlgorithmRecord, 'algorithm' | 'auf'>>,
   ) => void;
+  setStar: (id: string) => void;
   remove: (id: string) => void;
   addTime: (algorithmId: string, seconds: number) => void;
   removeTime: (algorithmId: string, timeId: string) => void;
@@ -50,6 +52,12 @@ export function useAlgorithms(): UseAlgorithmsResult {
       records.filter(
         (r) => r.pllId === pllId && (auf === undefined || r.auf === auf),
       ),
+    [records],
+  );
+
+  const starredFor = useCallback(
+    (pllId: PllId): AlgorithmRecord | null =>
+      records.find((r) => r.pllId === pllId && r.isStarred) ?? null,
     [records],
   );
 
@@ -70,7 +78,7 @@ export function useAlgorithms(): UseAlgorithmsResult {
       auf: input.auf,
       algorithm: input.algorithm.trim(),
       times: [],
-      isFavorite: false,
+      isStarred: false, // will be auto-promoted by enforceStarInvariant if it's the first algo
       createdAt: nowIso(),
       updatedAt: nowIso(),
     };
@@ -94,6 +102,20 @@ export function useAlgorithms(): UseAlgorithmsResult {
           : r,
       ),
     );
+  }, []);
+
+  const setStar = useCallback((id: string) => {
+    mutate((prev) => {
+      const target = prev.find((r) => r.id === id);
+      if (!target) return prev;
+      const now = nowIso();
+      return prev.map((r) => {
+        if (r.pllId !== target.pllId) return r;
+        const want = r.id === id;
+        if (r.isStarred === want) return r;
+        return { ...r, isStarred: want, updatedAt: now };
+      });
+    });
   }, []);
 
   const remove = useCallback((id: string) => {
@@ -135,9 +157,11 @@ export function useAlgorithms(): UseAlgorithmsResult {
       ready,
       all: records,
       forPll,
+      starredFor,
       bestTimeFor,
       add,
       update,
+      setStar,
       remove,
       addTime,
       removeTime,
@@ -146,9 +170,11 @@ export function useAlgorithms(): UseAlgorithmsResult {
       ready,
       records,
       forPll,
+      starredFor,
       bestTimeFor,
       add,
       update,
+      setStar,
       remove,
       addTime,
       removeTime,

@@ -1,12 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { getPllDefinition } from '@/data/pll-definitions';
 import { useAlgorithms } from '@/hooks/useAlgorithms';
-import { useDefaultAufs } from '@/hooks/useDefaultAufs';
-import { AUFS, type Auf, type PllId } from '@/types/pll';
+import { aufFromAlgorithm } from '@/lib/auf-from-algorithm';
+import { type Auf, type PllId } from '@/types/pll';
 import { AlgorithmForm } from './AlgorithmForm';
 import { AlgorithmRow } from './AlgorithmRow';
 import { AufTabs } from './AufTabs';
@@ -16,27 +15,21 @@ interface PllDetailProps {
   pllId: PllId;
 }
 
-function isAuf(value: string | null): value is Auf {
-  return value !== null && (AUFS as readonly string[]).includes(value);
-}
-
 export function PllDetail({ pllId }: PllDetailProps) {
   const def = getPllDefinition(pllId);
-  const searchParams = useSearchParams();
-  const { getDefault } = useDefaultAufs();
-
-  const initialAuf: Auf = useMemo(() => {
-    const fromUrl = searchParams.get('auf');
-    if (isAuf(fromUrl)) return fromUrl;
-    return getDefault(pllId);
-    // Initial AUF is locked at first render; subsequent default changes
-    // are applied only after navigating in again.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pllId]);
-
-  const [auf, setAuf] = useState<Auf>(initialAuf);
+  const [manualAuf, setManualAuf] = useState<Auf | null>(null);
   const [adding, setAdding] = useState(false);
-  const { ready, all, add, update, remove, addTime, removeTime } = useAlgorithms();
+  const {
+    ready,
+    all,
+    starredFor,
+    add,
+    update,
+    setStar,
+    remove,
+    addTime,
+    removeTime,
+  } = useAlgorithms();
 
   const recordsByAuf = useMemo(() => {
     const map: Record<Auf, typeof all> = { U0: [], U: [], U2: [], "U'": [] };
@@ -46,6 +39,12 @@ export function PllDetail({ pllId }: PllDetailProps) {
     }
     return map;
   }, [all, pllId]);
+
+  const star = ready ? starredFor(pllId) : null;
+  const starAuf: Auf = star ? aufFromAlgorithm(star.algorithm) : 'U0';
+  // Tabs follow the starred algorithm's setup AUF until the user picks a tab,
+  // after which their choice sticks for the rest of the visit.
+  const auf: Auf = manualAuf ?? starAuf;
 
   const countByAuf: Record<Auf, number> = {
     U0: recordsByAuf.U0.length,
@@ -66,7 +65,7 @@ export function PllDetail({ pllId }: PllDetailProps) {
   }
 
   const current = recordsByAuf[auf].slice().sort((a, b) => {
-    if (a.isFavorite !== b.isFavorite) return a.isFavorite ? -1 : 1;
+    if (a.isStarred !== b.isStarred) return a.isStarred ? -1 : 1;
     return a.createdAt.localeCompare(b.createdAt);
   });
 
@@ -84,7 +83,7 @@ export function PllDetail({ pllId }: PllDetailProps) {
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
         <div className="space-y-3">
           <h1 className="text-3xl font-semibold tracking-tight">{def.name}</h1>
-          <AufTabs value={auf} onChange={setAuf} countByAuf={countByAuf} />
+          <AufTabs value={auf} onChange={setManualAuf} countByAuf={countByAuf} />
         </div>
         <div className="flex justify-center md:justify-end">
           <div className="rounded-lg p-2 bg-zinc-100 dark:bg-zinc-900">
@@ -115,6 +114,7 @@ export function PllDetail({ pllId }: PllDetailProps) {
         {adding && (
           <div className="rounded-lg border border-emerald-300 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/20 p-3">
             <AlgorithmForm
+              pllId={pllId}
               onSubmit={(v) => {
                 add({ pllId, auf, algorithm: v });
                 setAdding(false);
@@ -137,6 +137,7 @@ export function PllDetail({ pllId }: PllDetailProps) {
                 key={record.id}
                 record={record}
                 onUpdate={update}
+                onSetStar={setStar}
                 onRemove={remove}
                 onAddTime={addTime}
                 onRemoveTime={removeTime}

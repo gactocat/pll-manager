@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation';
-import { Suspense } from 'react';
 import { PllDetail } from '@/components/PllDetail';
 import { PLL_IDS, type PllId } from '@/types/pll';
 
@@ -16,9 +15,5 @@ export default async function PllDetailPage({ params }: PageProps) {
   if (!PLL_IDS.includes(id as PllId)) {
     notFound();
   }
-  return (
-    <Suspense fallback={null}>
-      <PllDetail pllId={id as PllId} />
-    </Suspense>
-  );
+  return <PllDetail pllId={id as PllId} />;
 }

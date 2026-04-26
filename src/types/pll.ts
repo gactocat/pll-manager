@@ -82,7 +82,7 @@ export interface AlgorithmRecord {
   auf: Auf;
   algorithm: string;
   times: TimeRecord[];
-  isFavorite: boolean;
+  isStarred: boolean;
   createdAt: string;
   updatedAt: string;
 }

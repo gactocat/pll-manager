@@ -8,7 +8,8 @@ import type { AlgorithmRecord } from '@/types/pll';
 
 interface AlgorithmRowProps {
   record: AlgorithmRecord;
-  onUpdate: (id: string, patch: { algorithm?: string; isFavorite?: boolean }) => void;
+  onUpdate: (id: string, patch: { algorithm?: string }) => void;
+  onSetStar: (id: string) => void;
   onRemove: (id: string) => void;
   onAddTime: (id: string, seconds: number) => void;
   onRemoveTime: (id: string, timeId: string) => void;
@@ -17,6 +18,7 @@ interface AlgorithmRowProps {
 export function AlgorithmRow({
   record,
   onUpdate,
+  onSetStar,
   onRemove,
   onAddTime,
   onRemoveTime,
@@ -30,7 +32,7 @@ export function AlgorithmRow({
   return (
     <li
       className={`rounded-lg border ${
-        record.isFavorite
+        record.isStarred
           ? 'border-amber-400 dark:border-amber-500'
           : 'border-zinc-200 dark:border-zinc-800'
       } bg-white dark:bg-zinc-900`}
@@ -38,14 +40,19 @@ export function AlgorithmRow({
       <div className="p-3 flex items-start gap-3">
         <button
           type="button"
-          onClick={() => onUpdate(record.id, { isFavorite: !record.isFavorite })}
+          onClick={() => {
+            // Star is single-select per PLL; we only let users PROMOTE one.
+            // The store auto-promotes if the user removes the only algo's star.
+            if (!record.isStarred) onSetStar(record.id);
+          }}
+          disabled={record.isStarred}
           className={`mt-1 text-lg leading-none ${
-            record.isFavorite
-              ? 'text-amber-500'
+            record.isStarred
+              ? 'text-amber-500 cursor-default'
               : 'text-zinc-300 hover:text-amber-400 dark:text-zinc-700'
           }`}
-          aria-label={record.isFavorite ? 'Remove from favorites' : 'Mark as favorite'}
-          title="Favorite"
+          aria-label={record.isStarred ? 'Starred (only one per PLL)' : 'Set as starred'}
+          title={record.isStarred ? 'Starred — shown on the PLL grid' : 'Set as starred'}
         >
           ★
         </button>
@@ -53,6 +60,7 @@ export function AlgorithmRow({
         <div className="flex-1 min-w-0">
           {editing ? (
             <AlgorithmForm
+              pllId={record.pllId}
               initialValue={record.algorithm}
               submitLabel="Update"
               onSubmit={(v) => {
