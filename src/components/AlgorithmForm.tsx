@@ -70,9 +70,9 @@ export function AlgorithmForm({
             id="preset-picker"
             onChange={handlePresetChange}
             defaultValue=""
-            className="flex-1 rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-2 py-1.5 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="flex-1 min-w-0 rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-2 py-1.5 text-base sm:text-xs font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
-            <option value="">— Choose from speedsolving.com —</option>
+            <option value="">—</option>
             {presets.map((alg, i) => (
               <option key={i} value={alg}>
                 {`${i + 1}. ${alg}`}
@@ -117,7 +117,7 @@ export function AlgorithmForm({
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder={placeholder}
-          className="flex-1 min-w-0 rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className="flex-1 min-w-0 rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-base sm:text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
           autoFocus
         />
         <div className="flex gap-2">

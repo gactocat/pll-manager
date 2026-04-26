@@ -152,7 +152,7 @@ export function TimeHistoryPanel({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="or enter seconds manually (e.g. 3.421)"
-          className="flex-1 rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-3 py-1.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className="flex-1 min-w-0 rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-3 py-1.5 text-base sm:text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
         <button
           type="submit"
