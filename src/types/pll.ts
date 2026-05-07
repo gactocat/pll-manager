@@ -86,3 +86,12 @@ export interface AlgorithmRecord {
   createdAt: string;
   updatedAt: string;
 }
+
+// One solve from the Random PLL trainer. Not associated with any algorithm
+// string — just a per-PLL time bucket for the recognition-and-speed mode.
+export interface RandomSolve {
+  id: string;
+  pllId: PllId;
+  seconds: number;
+  recordedAt: string;
+}

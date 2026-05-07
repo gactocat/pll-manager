@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Geist, Geist_Mono } from 'next/font/google';
+import { HeaderNav } from '@/components/HeaderNav';
 import './globals.css';
 
 const geistSans = Geist({
@@ -32,9 +33,7 @@ export default function RootLayout({
             <Link href="/" className="font-semibold text-lg tracking-tight">
               PLL Manager
             </Link>
-            <span className="text-xs text-zinc-500">
-              CFOP / Permutation of the Last Layer
-            </span>
+            <HeaderNav />
           </div>
         </header>
         <main className="mx-auto w-full max-w-6xl px-4 py-6 flex-1">
