@@ -3,9 +3,10 @@
 import Link from 'next/link';
 import { ALL_PLLS } from '@/data/pll-definitions';
 import { useAlgorithms } from '@/hooks/useAlgorithms';
+import { useRandomSolves } from '@/hooks/useRandomSolves';
 import { averageOfN, bestSeconds, formatSeconds } from '@/lib/stats';
 import { PllImage } from './PllImage';
-import type { PllCategory } from '@/types/pll';
+import type { PllCategory, PllId } from '@/types/pll';
 
 const CATEGORY_LABELS: Record<PllCategory, string> = {
   epll: 'Permutations of Edges Only',
@@ -14,6 +15,12 @@ const CATEGORY_LABELS: Record<PllCategory, string> = {
 };
 
 const CATEGORY_ORDER: PllCategory[] = ['epll', 'cpll', 'ec-pll'];
+
+export type PllGridMode = 'all' | 'random';
+
+interface PllGridProps {
+  mode: PllGridMode;
+}
 
 function timeBadgeClasses(seconds: number | null): string {
   if (seconds === null) return 'bg-zinc-200 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400';
@@ -35,27 +42,69 @@ function formatLastDate(iso: string | undefined): string {
   }
 }
 
-export function PllGrid() {
-  const { ready, starredFor, all } = useAlgorithms();
+export function PllGrid({ mode }: PllGridProps) {
+  const { ready: algReady, starredFor, all: allAlgorithms } = useAlgorithms();
+  const { ready: randomReady, all: allRandomSolves, solvesFor, bestFor: randomBestFor, ao5For: randomAo5For } = useRandomSolves();
 
   const grouped = CATEGORY_ORDER.map((cat) => ({
     category: cat,
     items: ALL_PLLS.filter((p) => p.category === cat),
   }));
 
-  return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">All PLLs</h1>
+  // Stats for a card depend on the active mode. In All-PLLs mode they come
+  // from the starred algorithm's recorded times; in Random mode they come
+  // from the per-PLL random-solve store. Helper closes over the hooks.
+  const statsFor = (pllId: PllId) => {
+    if (mode === 'random') {
+      const solves = solvesFor(pllId);
+      const last = solves[0]?.recordedAt; // newest-first in store
+      return {
+        best: randomBestFor(pllId),
+        ao5: randomAo5For(pllId),
+        last,
+        count: solves.length,
+      };
+    }
+    const star = algReady ? starredFor(pllId) : null;
+    const times = star?.times ?? [];
+    return {
+      best: bestSeconds(times),
+      ao5: averageOfN(times, 5),
+      last: times[0]?.recordedAt,
+      count: times.length,
+    };
+  };
+
+  const heading =
+    mode === 'random' ? (
+      <>
+        <h1 className="text-2xl font-semibold tracking-tight">Random Trainer</h1>
         <p className="text-sm text-zinc-500 mt-1">
-          Pick a PLL to manage algorithms and times for each orientation (U0 / U / U2 / U&apos;).
-          {ready && (
+          Tap (or press Space) to draw a random PLL with the AUF of its starred algorithm.
+          {randomReady && (
             <span className="ml-2 text-xs">
-              · {all.length} algorithm{all.length === 1 ? '' : 's'} saved
+              · {allRandomSolves.length} random solve{allRandomSolves.length === 1 ? '' : 's'} recorded
             </span>
           )}
         </p>
-      </div>
+      </>
+    ) : (
+      <>
+        <h1 className="text-2xl font-semibold tracking-tight">All PLLs</h1>
+        <p className="text-sm text-zinc-500 mt-1">
+          Pick a PLL to manage algorithms and times for each orientation (U0 / U / U2 / U&apos;).
+          {algReady && (
+            <span className="ml-2 text-xs">
+              · {allAlgorithms.length} algorithm{allAlgorithms.length === 1 ? '' : 's'} saved
+            </span>
+          )}
+        </p>
+      </>
+    );
+
+  return (
+    <div className="space-y-8">
+      <div>{heading}</div>
 
       {grouped.map(({ category, items }) => (
         <section key={category}>
@@ -64,11 +113,8 @@ export function PllGrid() {
           </h2>
           <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {items.map((pll) => {
-              const star = ready ? starredFor(pll.id) : null;
-              const starTimes = star?.times ?? [];
-              const best = bestSeconds(starTimes);
-              const ao5 = averageOfN(starTimes, 5);
-              const lastDate = formatLastDate(starTimes[0]?.recordedAt);
+              const star = algReady ? starredFor(pll.id) : null;
+              const { best, ao5, last, count } = statsFor(pll.id);
               const displayAuf = star?.auf ?? 'U0';
               return (
                 <li key={pll.id}>
@@ -105,7 +151,7 @@ export function PllGrid() {
                         </span>
                       )}
                     </div>
-                    {star && (
+                    {count > 0 && (
                       <div className="mt-2 flex items-center justify-center gap-2 text-[10px] text-zinc-500 font-mono">
                         <span>
                           ao5{' '}
@@ -114,7 +160,7 @@ export function PllGrid() {
                           </span>
                         </span>
                         <span aria-hidden>·</span>
-                        <span title="Last recorded date">{lastDate}</span>
+                        <span title="Last recorded date">{formatLastDate(last)}</span>
                       </div>
                     )}
                   </Link>
