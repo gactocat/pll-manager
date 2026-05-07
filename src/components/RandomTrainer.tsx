@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ALL_PLLS, getPllDefinition } from '@/data/pll-definitions';
+import { useAlgorithms } from '@/hooks/useAlgorithms';
 import { useRandomSolves } from '@/hooks/useRandomSolves';
-import { AUFS, PLL_IDS, type Auf, type PllId } from '@/types/pll';
+import { PLL_IDS, type Auf, type PllId } from '@/types/pll';
 import { PllImage } from './PllImage';
 import { RandomStatsGrid } from './RandomStatsGrid';
 
@@ -14,15 +15,19 @@ interface Pick {
   auf: Auf;
 }
 
-function pickRandom(): Pick {
-  return {
-    pllId: PLL_IDS[Math.floor(Math.random() * PLL_IDS.length)],
-    auf: AUFS[Math.floor(Math.random() * AUFS.length)],
-  };
-}
-
 export function RandomTrainer() {
-  const { ready, all, bestFor, ao5For, solvesFor, add } = useRandomSolves();
+  const { ready, all, bestFor, ao5For, solvesFor, add, resetForPll } = useRandomSolves();
+  const { starredFor } = useAlgorithms();
+
+  // AUF for the picked PLL comes from its starred algorithm in All PLLs mode,
+  // so the random case is presented in the orientation the user actually
+  // practices. Falls back to U0 if no algorithm has been starred for that PLL.
+  const pickRandom = useCallback((): Pick => {
+    const pllId = PLL_IDS[Math.floor(Math.random() * PLL_IDS.length)];
+    const auf = starredFor(pllId)?.auf ?? 'U0';
+    return { pllId, auf };
+  }, [starredFor]);
+
   const [state, setState] = useState<TrainerState>('idle');
   const [current, setCurrent] = useState<Pick | null>(null);
   const [elapsed, setElapsed] = useState(0);
@@ -102,6 +107,7 @@ export function RandomTrainer() {
           bestFor={bestFor}
           ao5For={ao5For}
           solvesFor={solvesFor}
+          onReset={resetForPll}
         />
       </section>
     </div>

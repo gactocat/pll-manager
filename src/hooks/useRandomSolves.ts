@@ -39,6 +39,7 @@ export interface UseRandomSolvesResult {
   ao5For: (pllId: PllId) => number | null;
   add: (pllId: PllId, seconds: number) => void;
   remove: (id: string) => void;
+  resetForPll: (pllId: PllId) => void;
 }
 
 export function useRandomSolves(): UseRandomSolvesResult {
@@ -75,8 +76,12 @@ export function useRandomSolves(): UseRandomSolvesResult {
     mutate((prev) => prev.filter((s) => s.id !== id));
   }, []);
 
+  const resetForPll = useCallback((pllId: PllId) => {
+    mutate((prev) => prev.filter((s) => s.pllId !== pllId));
+  }, []);
+
   return useMemo(
-    () => ({ ready, all, solvesFor, bestFor, ao5For, add, remove }),
-    [ready, all, solvesFor, bestFor, ao5For, add, remove],
+    () => ({ ready, all, solvesFor, bestFor, ao5For, add, remove, resetForPll }),
+    [ready, all, solvesFor, bestFor, ao5For, add, remove, resetForPll],
   );
 }
