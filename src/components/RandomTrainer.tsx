@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ALL_PLLS, getPllDefinition } from '@/data/pll-definitions';
 import { useAlgorithms } from '@/hooks/useAlgorithms';
 import { useRandomSolves } from '@/hooks/useRandomSolves';
+import { useSpacebar } from '@/hooks/useSpacebar';
 import { PLL_IDS, type Auf, type PllId } from '@/types/pll';
 import { PllImage } from './PllImage';
 import { RandomStatsGrid } from './RandomStatsGrid';
@@ -46,17 +47,17 @@ export function RandomTrainer() {
     };
   }, [state]);
 
-  const start = () => {
+  const start = useCallback(() => {
     setCurrent(pickRandom());
     startRef.current = Date.now();
     setElapsed(0);
     setState('running');
-  };
+  }, [pickRandom]);
 
-  const stop = () => {
+  const stop = useCallback(() => {
     setElapsed((Date.now() - startRef.current) / 1000);
     setState('stopped');
-  };
+  }, []);
 
   const record = () => {
     if (current && elapsed > 0) add(current.pllId, elapsed);
@@ -70,6 +71,15 @@ export function RandomTrainer() {
     setElapsed(0);
     setCurrent(null);
   };
+
+  // Spacebar mirrors the tap action: idle → start, running → stop. Stopped
+  // state stays inert so a stray press doesn't lose the captured time
+  // before the user picks Record / Discard.
+  const onSpace = useCallback(() => {
+    if (state === 'idle') start();
+    else if (state === 'running') stop();
+  }, [state, start, stop]);
+  useSpacebar(onSpace);
 
   return (
     <div className="space-y-6">

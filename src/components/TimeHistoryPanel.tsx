@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
+import { useSpacebar } from '@/hooks/useSpacebar';
 import { averageOfN, bestSeconds, formatSeconds } from '@/lib/stats';
 import type { TimeRecord } from '@/types/pll';
 
@@ -44,15 +45,15 @@ function Stopwatch({ onRecord }: { onRecord: (seconds: number) => void }) {
     };
   }, [state]);
 
-  const start = () => {
+  const start = useCallback(() => {
     startRef.current = Date.now();
     setElapsed(0);
     setState('running');
-  };
-  const stop = () => {
+  }, []);
+  const stop = useCallback(() => {
     setElapsed((Date.now() - startRef.current) / 1000);
     setState('stopped');
-  };
+  }, []);
   const record = () => {
     if (elapsed > 0) onRecord(elapsed);
     setState('idle');
@@ -62,6 +63,15 @@ function Stopwatch({ onRecord }: { onRecord: (seconds: number) => void }) {
     setState('idle');
     setElapsed(0);
   };
+
+  // Spacebar mirrors the tap action: idle → start, running → stop. Stopped
+  // state is intentionally inert so a stray press doesn't lose a captured
+  // time before the user picks Record / Discard.
+  const onSpace = useCallback(() => {
+    if (state === 'idle') start();
+    else if (state === 'running') stop();
+  }, [state, start, stop]);
+  useSpacebar(onSpace);
 
   // Big tap-anywhere surface for idle/running. Stopped state shrinks the
   // surface and shows explicit Record/Discard buttons.
