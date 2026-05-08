@@ -85,7 +85,7 @@ export function RandomTrainer() {
       <div className="rounded-lg border border-amber-400 dark:border-amber-500 bg-amber-50 dark:bg-amber-950/30 p-6 flex flex-col items-center gap-4 select-none">
         <div className="flex flex-col sm:flex-row items-center gap-6">
           <div className="rounded-md p-2 bg-zinc-100 dark:bg-zinc-900">
-            <PllImage pllId={current.pllId} auf={current.auf} size={180} />
+            <PllImage pllId={current.pllId} auf={current.auf} size={180} showArrows={false} />
           </div>
           <div className="text-center sm:text-left">
             <div className="text-sm uppercase tracking-wider text-amber-700 dark:text-amber-300">
@@ -125,7 +125,7 @@ export function RandomTrainer() {
         aria-label="Tap to stop the timer"
       >
         <div className="rounded-md p-2 bg-white/15">
-          <PllImage pllId={current.pllId} auf={current.auf} size={160} />
+          <PllImage pllId={current.pllId} auf={current.auf} size={160} showArrows={false} />
         </div>
         <div
           className="font-mono text-5xl sm:text-6xl font-bold tabular-nums leading-none"
